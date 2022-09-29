@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  posts Post[] @relation("CreatedPosts")
+  savedPosts Post[] @relation("SavedPosts")
+  lots Lot[] @relation("CreatedLots")
+  following Lot[] @relation("FollowingLots")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  email  String @unique
+  username String @unique
+  fullName String
+  passwordHash String
+  onboarded Boolean @default(false)
+}
+
+model Post {
+  id String @id @default(uuid())
+  author User @relation(name: "CreatedPosts", fields: [authorId], references: [id])
+  authorId String
+  user User[] @relation("SavedPosts")
+  lotId String
+  lot Lot @relation(fields: [lotId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  title String
+  description String?
+  imageUrl String
+  url String
+}
+
+model Lot {
+  id String @id @default(uuid())
+  author User @relation(name: "CreatedLots", fields: [authorId], references: [id])
+  authorId String
+  users User[] @relation("FollowingLots")
+  posts Post[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  title String
+  description String?
+  featured Boolean @default(false)
+}
+
